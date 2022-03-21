@@ -1,8 +1,16 @@
-import '../styles/globals.css'
-import type { AppProps } from 'next/app'
+import type { AppProps } from "next/app"
 
-function MyApp({ Component, pageProps }: AppProps) {
-  return <Component {...pageProps} />
+import { FireBaseContextProvider } from "../src/firebase-context"
+import { AuthProvider } from "../src/login/auth-context"
+
+const MyApp = ({ Component, pageProps }: AppProps) => {
+  return (
+    <FireBaseContextProvider>
+      <AuthProvider>
+        <Component {...pageProps} />
+      </AuthProvider>
+    </FireBaseContextProvider>
+  )
 }
 
 export default MyApp

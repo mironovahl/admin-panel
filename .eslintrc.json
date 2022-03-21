@@ -1,3 +1,46 @@
 {
-  "extends": "next/core-web-vitals"
+  "root": true,
+  "extends": ["react-config-r13v"],
+
+  "parserOptions": {
+    "project": "tsconfig.json",
+    "ecmaFeatures": {
+      "jsx": true
+    }
+  },
+  "rules": {
+    "simple-import-sort/imports": [
+      "warn",
+      {
+        "groups": [
+          [
+            "^\\u0000"
+          ],
+          [
+            "^react",
+            "^[^.]"
+          ],
+          [
+            "^src"
+          ],
+          [
+            "^\\."
+          ]
+        ]
+      }
+    ],
+    "@typescript-eslint/consistent-type-definitions": ["warn", "interface"],
+    "react/react-in-jsx-scope": "off",
+    "unicorn/prefer-object-from-entries": "off",
+    "unicorn/prefer-module": "off",
+    "unicorn/prefer-node-protocol": "off"
+  },
+  "overrides": [
+    {
+      "files": ["./src/ui/**/*.ts", "./src/ui/**/*.tsx"],
+      "rules": {
+        "no-restricted-imports": "off"
+      }
+    }
+  ]
 }
