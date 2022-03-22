@@ -6,42 +6,67 @@ import {
   useMemo,
   useState,
 } from "react"
-import { getAuth, signInWithEmailAndPassword, User } from "firebase/auth"
+import {
+  getAuth,
+  RecaptchaVerifier,
+  signInWithEmailAndPassword,
+  signInWithPhoneNumber,
+  User,
+} from "firebase/auth"
 
 import { useFirebaseContext } from "../firebase-context"
 
 interface IFirebaseContext {
   onAuthUser: (email: string, password: string) => void
   error?: string
+  user?: User
 }
 
 export const AuthContext = createContext<IFirebaseContext>(
   {} as IFirebaseContext,
 )
 
-export const AuthProvider: FC = ({ children }) => {
-  const { app } = useFirebaseContext()
-  const auth = getAuth(app)
+const useAuth = () => {
+  const app = useFirebaseContext()
 
-  const [error, setError] = useState()
-  const [user, setUser] = useState<User>()
+  const [error, setError] = useState<string | undefined>()
+  const [user, setUser] = useState<User | undefined>()
 
   const onAuthUser = useCallback(
-    (email: string, password: string) => {
-      signInWithEmailAndPassword(auth, email, password)
-        .then((userCredential) => {
-          const user = userCredential.user
+    async (email: string, password: string) => {
+      try {
+        const auth = getAuth(app)
 
-          setUser(user)
-        })
-        .catch((error) => {
-          setError(error.message)
-        })
+        const cred = await signInWithEmailAndPassword(auth, email, password)
+
+        setUser(cred.user)
+
+        const appVerifier = new RecaptchaVerifier(
+          "recaptcha-container",
+          {},
+          auth,
+        )
+
+        return await signInWithPhoneNumber(
+          auth,
+          cred?.user?.phoneNumber ?? "+79225210512",
+          appVerifier,
+        )
+      } catch (error_) {
+        if (error_ instanceof Error) {
+          setError(error_.message)
+        }
+      }
     },
-    [auth],
+
+    [app],
   )
 
-  const value = useMemo(() => ({ onAuthUser, error }), [error, onAuthUser])
+  return useMemo(() => ({ onAuthUser, user, error }), [error, onAuthUser, user])
+}
+
+export const AuthProvider: FC = ({ children }) => {
+  const value = useAuth()
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

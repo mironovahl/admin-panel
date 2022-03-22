@@ -1,6 +1,5 @@
 import { createContext, FC, useContext } from "react"
 import { FirebaseApp, initializeApp } from "firebase/app"
-import { getAuth } from "firebase/auth"
 
 const firebaseConfig = {
   apiKey: "AIzaSyA520zJYS_crmNYm2qI6PZAxc0zvWE8_fA",
@@ -16,17 +15,11 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig)
 
-interface IFirebaseContext {
-  app: FirebaseApp
-}
-
-export const FirebaseContext = createContext<IFirebaseContext>({ app })
+export const FirebaseContext = createContext<FirebaseApp>(app)
 
 export const FireBaseContextProvider: FC = ({ children }) => {
   return (
-    <FirebaseContext.Provider value={{ app }}>
-      {children}
-    </FirebaseContext.Provider>
+    <FirebaseContext.Provider value={app}>{children}</FirebaseContext.Provider>
   )
 }
 
