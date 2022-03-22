@@ -1,25 +1,25 @@
 import {
   createContext,
+  Dispatch,
   FC,
-  useCallback,
+  SetStateAction,
   useContext,
   useMemo,
   useState,
 } from "react"
-import {
-  getAuth,
-  RecaptchaVerifier,
-  signInWithEmailAndPassword,
-  signInWithPhoneNumber,
-  User,
-} from "firebase/auth"
+import { Auth, getAuth, User } from "firebase/auth"
 
 import { useFirebaseContext } from "../firebase-context"
 
 interface IFirebaseContext {
-  onAuthUser: (email: string, password: string) => void
+  auth: Auth
   error?: string
   user?: User
+  setUser: Dispatch<SetStateAction<User | undefined>>
+  tempUser?: User
+  setTempUser: Dispatch<SetStateAction<User | undefined>>
+  step: number
+  setStep: Dispatch<SetStateAction<number>>
 }
 
 export const AuthContext = createContext<IFirebaseContext>(
@@ -28,41 +28,16 @@ export const AuthContext = createContext<IFirebaseContext>(
 
 const useAuth = () => {
   const app = useFirebaseContext()
+  const auth = getAuth(app)
 
-  const [error, setError] = useState<string | undefined>()
   const [user, setUser] = useState<User | undefined>()
+  const [tempUser, setTempUser] = useState<User | undefined>()
+  const [step, setStep] = useState(0)
 
-  const onAuthUser = useCallback(
-    async (email: string, password: string) => {
-      try {
-        const auth = getAuth(app)
-
-        const cred = await signInWithEmailAndPassword(auth, email, password)
-
-        setUser(cred.user)
-
-        const appVerifier = new RecaptchaVerifier(
-          "recaptcha-container",
-          {},
-          auth,
-        )
-
-        return await signInWithPhoneNumber(
-          auth,
-          cred?.user?.phoneNumber ?? "+79225210512",
-          appVerifier,
-        )
-      } catch (error_) {
-        if (error_ instanceof Error) {
-          setError(error_.message)
-        }
-      }
-    },
-
-    [app],
+  return useMemo(
+    () => ({ auth, user, setUser, tempUser, setTempUser, step, setStep }),
+    [auth, step, tempUser, user],
   )
-
-  return useMemo(() => ({ onAuthUser, user, error }), [error, onAuthUser, user])
 }
 
 export const AuthProvider: FC = ({ children }) => {
