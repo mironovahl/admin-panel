@@ -1,5 +1,3 @@
-import { useState } from "react"
-
 import { useAuthContext } from "./auth-context"
 import { FirstFactorAuth } from "./first-factor"
 import { SecondFactorAuth } from "./second-factor-auth"
