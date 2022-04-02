@@ -12,7 +12,7 @@ import { Auth, getAuth, User } from "firebase/auth"
 
 import { useFirebaseContext } from "../firebase-context"
 
-interface IFirebaseContext {
+interface IAuthContext {
   auth: Auth
   error?: string
   user: User | null
@@ -24,12 +24,10 @@ interface IFirebaseContext {
   loading: boolean
 }
 
-export const AuthContext = createContext<IFirebaseContext>(
-  {} as IFirebaseContext,
-)
+export const AuthContext = createContext<IAuthContext>({} as IAuthContext)
 
 const useAuth = () => {
-  const app = useFirebaseContext()
+  const { app } = useFirebaseContext()
   const auth = getAuth(app)
 
   const [user, setUser] = useState<User | null>(auth?.currentUser ?? null)

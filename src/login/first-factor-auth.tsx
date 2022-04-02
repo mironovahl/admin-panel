@@ -1,11 +1,7 @@
 import { ChangeEvent, useCallback, useState } from "react"
 import { browserLocalPersistence } from "@firebase/auth"
 import { Box, Button, TextField } from "@mui/material"
-import {
-  browserSessionPersistence,
-  setPersistence,
-  signInWithEmailAndPassword,
-} from "firebase/auth"
+import { setPersistence, signInWithEmailAndPassword } from "firebase/auth"
 
 import { useAuthContext } from "./auth-context"
 
