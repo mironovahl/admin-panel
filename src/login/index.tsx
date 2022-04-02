@@ -1,5 +1,5 @@
 import { useAuthContext } from "./auth-context"
-import { FirstFactorAuth } from "./first-factor"
+import { FirstFactorAuth } from "./first-factor-auth"
 import { SecondFactorAuth } from "./second-factor-auth"
 
 const Auth = [FirstFactorAuth, SecondFactorAuth]

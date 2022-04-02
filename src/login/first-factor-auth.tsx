@@ -1,6 +1,11 @@
 import { ChangeEvent, useCallback, useState } from "react"
+import { browserLocalPersistence } from "@firebase/auth"
 import { Box, Button, TextField } from "@mui/material"
-import { signInWithEmailAndPassword } from "firebase/auth"
+import {
+  browserSessionPersistence,
+  setPersistence,
+  signInWithEmailAndPassword,
+} from "firebase/auth"
 
 import { useAuthContext } from "./auth-context"
 
@@ -25,6 +30,8 @@ const useVM = () => {
 
   const onSubmit = useCallback(async () => {
     try {
+      await setPersistence(auth, browserLocalPersistence)
+
       const { user } = await signInWithEmailAndPassword(
         auth,
         loginValue,

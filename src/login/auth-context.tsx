@@ -4,6 +4,7 @@ import {
   FC,
   SetStateAction,
   useContext,
+  useEffect,
   useMemo,
   useState,
 } from "react"
@@ -14,12 +15,13 @@ import { useFirebaseContext } from "../firebase-context"
 interface IFirebaseContext {
   auth: Auth
   error?: string
-  user?: User
-  setUser: Dispatch<SetStateAction<User | undefined>>
+  user: User | null
+  setUser: Dispatch<SetStateAction<User | null>>
   tempUser?: User
   setTempUser: Dispatch<SetStateAction<User | undefined>>
   step: number
   setStep: Dispatch<SetStateAction<number>>
+  loading: boolean
 }
 
 export const AuthContext = createContext<IFirebaseContext>(
@@ -30,13 +32,31 @@ const useAuth = () => {
   const app = useFirebaseContext()
   const auth = getAuth(app)
 
-  const [user, setUser] = useState<User | undefined>()
+  const [user, setUser] = useState<User | null>(auth?.currentUser ?? null)
   const [tempUser, setTempUser] = useState<User | undefined>()
   const [step, setStep] = useState(0)
 
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    auth.onAuthStateChanged((currentUser) => {
+      setUser(currentUser)
+      setLoading(false)
+    })
+  }, [auth])
+
   return useMemo(
-    () => ({ auth, user, setUser, tempUser, setTempUser, step, setStep }),
-    [auth, step, tempUser, user],
+    () => ({
+      auth,
+      user,
+      setUser,
+      tempUser,
+      setTempUser,
+      step,
+      setStep,
+      loading,
+    }),
+    [auth, loading, step, tempUser, user],
   )
 }
 

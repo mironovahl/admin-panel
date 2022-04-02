@@ -2,6 +2,7 @@ import { ChangeEvent, Fragment, useCallback, useEffect, useState } from "react"
 import { Button, TextField } from "@mui/material"
 import {
   ConfirmationResult,
+  linkWithPhoneNumber,
   RecaptchaVerifier,
   signInWithPhoneNumber,
 } from "firebase/auth"
@@ -29,7 +30,19 @@ const useVM = () => {
 
       setPinCb(res)
     }
-  }, [auth, tempUser?.phoneNumber])
+
+    if (tempUser && !tempUser?.phoneNumber) {
+      const appVerifier = new RecaptchaVerifier("recaptcha-container", {}, auth)
+
+      const res = await linkWithPhoneNumber(
+        tempUser,
+        "+79952974342",
+        appVerifier,
+      )
+
+      setPinCb(res)
+    }
+  }, [auth, tempUser])
 
   useEffect(() => {
     getCode()
@@ -45,7 +58,7 @@ const useVM = () => {
     try {
       const result = await pinCb?.confirm(pin)
 
-      setUser(result?.user)
+      setUser(result?.user ?? null)
     } catch (error) {
       setError(String(error))
     }
