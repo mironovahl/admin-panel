@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint:eslint": "yarn eslint --ext .ts,.tsx .",
+    "lint:ts": "tsc --noEmit",
+    "lint": "yarn lint:eslint && yarn lint:ts"
   },
   "dependencies": {
     "@emotion/react": "^11.8.2",

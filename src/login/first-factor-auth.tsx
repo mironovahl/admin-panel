@@ -11,7 +11,8 @@ const useVM = () => {
   const [loginValue, setLogin] = useState("")
   const [passwordValue, setPassword] = useState("")
 
-  const [err, setErr] = useState<null | string>(null)
+  // TODO: handle error
+  const [_, setErr] = useState<null | string>(null)
 
   const getOnChangeHandler =
     (field: "password" | "login") =>

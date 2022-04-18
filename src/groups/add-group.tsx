@@ -41,12 +41,12 @@ const Buttons = styled.div`
 `
 
 interface Props {
-  open: boolean
-  handleClose: () => void
+  isOpen: boolean
+  onClose: () => void
 }
 
-export const AddGroup = (props: Props) => {
-  const { open, handleClose } = props
+const useVM = (arg: Props) => {
+  const { onClose } = arg
   const { db } = useFirebaseContext()
 
   const [name, setName] = useState("")
@@ -63,21 +63,31 @@ export const AddGroup = (props: Props) => {
       setter(event.target.value)
     }
 
-  const addGroup = async () => {
+  const addGroupAsync = async () => {
     const id = nanoid()
     const docData: Group = { name, semester: Number(semester), id }
 
     await addDoc(collection(db, "groups"), docData)
 
-    handleClose()
-    router.push(`/groups/${id}`)
+    onClose()
+    await router.push(`/groups/${id}`)
   }
+
+  const isButtonDisabled = semester.length === 0 || name.length === 0
+
+  return { addGroupAsync, getOnChangeHandler, semester, name, isButtonDisabled }
+}
+
+export const AddGroup = (props: Props) => {
+  const { isOpen, onClose } = props
+
+  const vm = useVM(props)
 
   return (
     <Modal
-      open={open}
-      onBackdropClick={handleClose}
-      onClose={handleClose}
+      open={isOpen}
+      onBackdropClick={onClose}
+      onClose={onClose}
       aria-labelledby="child-modal-title"
       aria-describedby="child-modal-description"
     >
@@ -93,8 +103,8 @@ export const AddGroup = (props: Props) => {
             required
             placeholder="Введите название группы"
             label="Группа"
-            value={name}
-            onChange={getOnChangeHandler("name")}
+            value={vm.name}
+            onChange={vm.getOnChangeHandler("name")}
           />
 
           <TextField
@@ -103,17 +113,18 @@ export const AddGroup = (props: Props) => {
             label="Семестр"
             placeholder="Введите семестр"
             inputMode="numeric"
-            value={semester}
-            onChange={getOnChangeHandler("semester")}
+            value={vm.semester}
+            onChange={vm.getOnChangeHandler("semester")}
           />
         </Fields>
 
         <Buttons>
-          <Button onClick={handleClose}>{"отмена"}</Button>
+          <Button onClick={onClose}>{"Отмена"}</Button>
+
           <Button
             variant="contained"
-            disabled={semester.length === 0 || name.length === 0}
-            onClick={addGroup}
+            disabled={vm.isButtonDisabled}
+            onClick={vm.addGroupAsync}
           >
             {"Добавить"}
           </Button>

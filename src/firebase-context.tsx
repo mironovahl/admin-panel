@@ -28,13 +28,8 @@ export const FirebaseContext = createContext<IFirebaseContext>(
 )
 
 export const FireBaseContextProvider: FC = ({ children }) => {
-  const value = useMemo(
-    () => ({
-      app,
-      db,
-    }),
-    [],
-  )
+  // eslint-disable-next-line @kyleshevlin/prefer-custom-hooks
+  const value = useMemo(() => ({ app, db }), [])
 
   return (
     <FirebaseContext.Provider value={value}>

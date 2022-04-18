@@ -16,9 +16,11 @@ const useVM = () => {
   const [pinCb, setPinCb] = useState<null | ConfirmationResult>(null)
 
   const recaptchaComplete = Boolean(pinCb)
-  const [error, setError] = useState<null | string>(null)
 
-  const getCode = useCallback(async () => {
+  // TODO: handle error
+  const [_, setError] = useState<null | string>(null)
+
+  const getCodeAsync = useCallback(async () => {
     if (tempUser?.phoneNumber) {
       const appVerifier = new RecaptchaVerifier("recaptcha-container", {}, auth)
 
@@ -45,8 +47,8 @@ const useVM = () => {
   }, [auth, tempUser])
 
   useEffect(() => {
-    getCode()
-  }, [])
+    ;(async () => await getCodeAsync())()
+  }, [getCodeAsync])
 
   const onChange = (
     event: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>,
@@ -86,9 +88,10 @@ export const SecondFactorAuth = () => {
             value={vm.pin}
             onChange={vm.onChange}
           />
+
           <Button type="submit" variant="contained" onClick={vm.onSubmitCode}>
             {"send"}
-          </Button>{" "}
+          </Button>
         </Fragment>
       )}
 

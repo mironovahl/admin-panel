@@ -14,7 +14,7 @@ export const useVM = () => {
   const [users, setUsers] = useState<User[]>([])
   const [groupData, setGroupData] = useState<Group | null>(null)
 
-  const getUsers = useCallback(async () => {
+  const getUsersAsync = useCallback(async () => {
     const q = query(collection(db, "users"), where("groupId", "==", groupId))
 
     const querySnapshot = await getDocs(q)
@@ -24,7 +24,7 @@ export const useVM = () => {
     })
   }, [db, groupId])
 
-  const getGroup = useCallback(async () => {
+  const getGroupAsync = useCallback(async () => {
     const q = query(collection(db, "groups"), where("id", "==", groupId))
 
     const querySnapshot = await getDocs(q)
@@ -35,11 +35,16 @@ export const useVM = () => {
   }, [db, groupId])
 
   useEffect(() => {
-    if (groupId) {
-      getGroup()
-      getUsers()
+    const getDataAsync = async () => {
+      const promises = [getGroupAsync(), getUsersAsync()]
+
+      await Promise.all(promises)
     }
-  }, [getGroup, getUsers, groupId])
+
+    if (groupId) {
+      ;(async () => await getDataAsync())()
+    }
+  }, [getGroupAsync, getUsersAsync, groupId])
 
   return { users, groupData }
 }

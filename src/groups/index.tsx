@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react"
-import { Button } from "@mui/material"
+import { useCallback, useEffect, useState } from "react"
+import { Box, Button, styled } from "@mui/material"
 import { DataGrid, GridColDef } from "@mui/x-data-grid"
 import { collection, getDocs } from "firebase/firestore"
 import { router } from "next/client"
@@ -8,55 +8,71 @@ import { useFirebaseContext } from "../firebase-context"
 import { Group } from "../types"
 import { AddGroup } from "./add-group"
 
+const Root = styled(Box)`
+  width: 100%;
+  height: 100%;
+`
+
+const GridRoot = styled(Box)`
+  height: 600px;
+  width: 100%;
+`
+
+const useVM = () => {
+  const { db } = useFirebaseContext()
+  const [groups, setGroups] = useState<Group[]>([])
+  const [isOpen, setOpen] = useState(false)
+
+  const onOpen = () => {
+    setOpen(true)
+  }
+
+  const onClose = () => {
+    setOpen(false)
+  }
+
+  const getGroups = useCallback(async () => {
+    const querySnapshot = await getDocs(collection(db, "groups"))
+
+    querySnapshot.forEach((doc) => {
+      setGroups((prev) => [...prev, doc.data() as Group])
+    })
+  }, [db])
+
+  const redirectToGroupAsync = async (id: string) => {
+    await router.push(`/groups/${id}`)
+  }
+
+  useEffect(() => {
+    ;(async () => await getGroups())()
+  }, [getGroups])
+
+  return { redirectToGroupAsync, onClose, onOpen, isOpen, groups }
+}
+
 const columns: GridColDef[] = [
   { field: "name", headerName: "Group", minWidth: 240 },
   { field: "semester", headerName: "Semester", minWidth: 240 },
 ]
 
 export const Groups = () => {
-  const { db } = useFirebaseContext()
-  const [groups, setGroups] = useState<Group[]>([])
-  const [open, setOpen] = useState(false)
-
-  const handleOpen = () => {
-    setOpen(true)
-  }
-
-  const handleClose = () => {
-    setOpen(false)
-  }
-
-  const getGroups = async () => {
-    const querySnapshot = await getDocs(collection(db, "groups"))
-
-    querySnapshot.forEach((doc) => {
-      setGroups((prev) => [...prev, doc.data() as Group])
-    })
-  }
-
-  const openGroup = (id: string) => {
-    router.push(`/groups/${id}`)
-  }
-
-  useEffect(() => {
-    getGroups()
-  }, [])
+  const vm = useVM()
 
   return (
-    <div style={{ height: "100%", width: "100%" }}>
-      <Button onClick={handleOpen}>{"Add Group"}</Button>
+    <Root>
+      <Button onClick={vm.onOpen}>{"Add Group"}</Button>
 
-      <AddGroup open={open} handleClose={handleClose} />
+      <AddGroup isOpen={vm.isOpen} onClose={vm.onClose} />
 
-      <div style={{ height: 600, width: "100%" }}>
+      <GridRoot>
         <DataGrid
-          onRowClick={(row) => openGroup(String(row.id))}
-          rows={groups}
+          onRowClick={(row) => vm.redirectToGroupAsync(String(row.id))}
+          rows={vm.groups}
           columns={columns}
           pageSize={10}
           rowsPerPageOptions={[5]}
         />
-      </div>
-    </div>
+      </GridRoot>
+    </Root>
   )
 }
