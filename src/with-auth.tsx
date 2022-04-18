@@ -9,8 +9,6 @@ export const WithAuth: FC<{ isProtectedPage: boolean }> = (props) => {
 
   const router = useRouter()
 
-  console.log(JSON.stringify(user))
-
   useEffect(() => {
     if (loading) {
       return

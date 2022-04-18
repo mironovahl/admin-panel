@@ -2,14 +2,15 @@ import { useEffect, useState } from "react"
 import { Button } from "@mui/material"
 import { DataGrid, GridColDef } from "@mui/x-data-grid"
 import { collection, getDocs } from "firebase/firestore"
+import { router } from "next/client"
 
 import { useFirebaseContext } from "../firebase-context"
+import { Group } from "../types"
 import { AddGroup } from "./add-group"
-import { Group } from "./types"
 
 const columns: GridColDef[] = [
-  { field: "name", headerName: "Group", width: 200 },
-  { field: "semester", headerName: "Semester", width: 200 },
+  { field: "name", headerName: "Group", minWidth: 240 },
+  { field: "semester", headerName: "Semester", minWidth: 240 },
 ]
 
 export const Groups = () => {
@@ -33,6 +34,10 @@ export const Groups = () => {
     })
   }
 
+  const openGroup = (id: string) => {
+    router.push(`/groups/${id}`)
+  }
+
   useEffect(() => {
     getGroups()
   }, [])
@@ -45,6 +50,7 @@ export const Groups = () => {
 
       <div style={{ height: 600, width: "100%" }}>
         <DataGrid
+          onRowClick={(row) => openGroup(String(row.id))}
           rows={groups}
           columns={columns}
           pageSize={10}
