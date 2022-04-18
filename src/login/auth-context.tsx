@@ -3,12 +3,13 @@ import {
   Dispatch,
   FC,
   SetStateAction,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
   useState,
 } from "react"
-import { Auth, getAuth, User } from "firebase/auth"
+import { Auth, getAuth, signOut, User } from "firebase/auth"
 
 import { useFirebaseContext } from "../firebase-context"
 
@@ -22,6 +23,7 @@ interface IAuthContext {
   step: number
   setStep: Dispatch<SetStateAction<number>>
   loading: boolean
+  logoutAsync: () => Promise<void>
 }
 
 export const AuthContext = createContext<IAuthContext>({} as IAuthContext)
@@ -35,6 +37,10 @@ const useAuth = () => {
   const [step, setStep] = useState(0)
 
   const [loading, setLoading] = useState(true)
+
+  const logoutAsync = useCallback(async () => {
+    await signOut(auth)
+  }, [auth])
 
   useEffect(() => {
     auth.onAuthStateChanged((currentUser) => {
@@ -53,8 +59,9 @@ const useAuth = () => {
       step,
       setStep,
       loading,
+      logoutAsync,
     }),
-    [auth, loading, step, tempUser, user],
+    [auth, loading, logoutAsync, step, tempUser, user],
   )
 }
 

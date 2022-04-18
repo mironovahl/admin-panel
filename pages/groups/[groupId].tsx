@@ -1,2 +1,11 @@
 /* eslint-disable unicorn/filename-case */
-export { Group as default } from "src/group"
+import { Group } from "src/group"
+import { WithAuth } from "src/with-auth"
+
+export default () => {
+  return (
+    <WithAuth isProtectedPage>
+      <Group />
+    </WithAuth>
+  )
+}
