@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react"
 import { Box, Button, styled } from "@mui/material"
 import { DataGrid, GridColDef } from "@mui/x-data-grid"
 import { collection, getDocs } from "firebase/firestore"
-import { router } from "next/client"
+import { useRouter } from "next/router"
 
 import { useFirebaseContext } from "../firebase-context"
 import { Group } from "../types"
@@ -22,6 +22,8 @@ const useVM = () => {
   const { db } = useFirebaseContext()
   const [groups, setGroups] = useState<Group[]>([])
   const [isOpen, setOpen] = useState(false)
+
+  const router = useRouter()
 
   const onOpen = () => {
     setOpen(true)
@@ -60,7 +62,9 @@ export const Groups = () => {
 
   return (
     <Root>
-      <Button onClick={vm.onOpen}>{"Add Group"}</Button>
+      <Box marginBottom={1}>
+        <Button onClick={vm.onOpen}>{"Add Group"}</Button>
+      </Box>
 
       <AddGroup isOpen={vm.isOpen} onClose={vm.onClose} />
 
@@ -70,7 +74,7 @@ export const Groups = () => {
           rows={vm.groups}
           columns={columns}
           pageSize={10}
-          rowsPerPageOptions={[5]}
+          rowsPerPageOptions={[10]}
         />
       </GridRoot>
     </Root>

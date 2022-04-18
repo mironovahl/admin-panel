@@ -3,7 +3,7 @@ import styled from "@emotion/styled"
 import { Box, Button, Modal, TextField, Typography } from "@mui/material"
 import { addDoc, collection } from "firebase/firestore"
 import { nanoid } from "nanoid"
-import { router } from "next/client"
+import { useRouter } from "next/router"
 
 import { useFirebaseContext } from "../firebase-context"
 import { Group } from "../types"
@@ -48,6 +48,7 @@ interface Props {
 const useVM = (arg: Props) => {
   const { onClose } = arg
   const { db } = useFirebaseContext()
+  const router = useRouter()
 
   const [name, setName] = useState("")
   const [semester, setSemester] = useState("")
