@@ -1,9 +1,9 @@
 export interface User {
-  group: string
-  hash: string
   id: string
+  groupId: string
+  hash: string
   name: string
-  status: boolean
+  status: "issued" | "pending" | "blocked"
 }
 export interface Group {
   id: string
