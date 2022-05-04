@@ -9,9 +9,16 @@ import {
   DialogTitle,
   TextField,
 } from "@mui/material"
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers"
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns"
+import format from "date-fns/format"
 
 interface Props {
-  onAdd: (name: string) => Promise<void>
+  onAdd: (values: {
+    name: string
+    birthday: string
+    email: string
+  }) => Promise<void>
 }
 
 const useVM = (arg: Props) => {
@@ -20,6 +27,8 @@ const useVM = (arg: Props) => {
   const [loading, setLoading] = useState(false)
 
   const [name, setName] = useState("")
+  const [email, setEmail] = useState("")
+  const [birthday, setBirthday] = useState<Date | null>(null)
 
   const onClose = () => {
     if (!loading) {
@@ -28,12 +37,19 @@ const useVM = (arg: Props) => {
   }
 
   const onAcceptAsync = async () => {
-    setLoading(true)
-    await onAdd(name)
+    try {
+      setLoading(true)
+      const formattedDate = format(birthday ?? new Date(), "dd.MM.yyyy")
 
-    setLoading(false)
-    setIsOpen(false)
-    setName("")
+      await onAdd({ name, birthday: formattedDate, email })
+
+      setIsOpen(false)
+      setName("")
+      setEmail("")
+      setBirthday(null)
+    } finally {
+      setLoading(false)
+    }
   }
 
   const isDisabled = name.length === 0 || loading
@@ -41,11 +57,15 @@ const useVM = (arg: Props) => {
   return {
     isOpen,
     isDisabled,
+    name,
+    loading,
+    email,
+    birthday,
     onAcceptAsync,
     onClose,
     setName,
-    name,
-    loading,
+    setEmail,
+    setBirthday,
     onOpen: () => setIsOpen(true),
   }
 }
@@ -61,14 +81,14 @@ export const UserModal: FC<Props> = (props) => {
 
       <Dialog open={vm.isOpen} onClose={vm.onClose}>
         <DialogTitle>{"Добавить"}</DialogTitle>
+
         <DialogContent>
           <DialogContentText>
-            {
-              'Чтобы выпустить сертификат безопасности, введите имя и фамилию студента и нажмите "Добавить"'
-            }
+            {`Чтобы выпустить сертификат безопасности,
+               введите имя и фамилию студента и нажмите "Добавить"`}
           </DialogContentText>
+
           <TextField
-            autoFocus
             margin="dense"
             id="name"
             label="Имя студента"
@@ -77,8 +97,41 @@ export const UserModal: FC<Props> = (props) => {
             value={vm.name}
             onChange={(e) => vm.setName(e.currentTarget.value)}
             disabled={vm.loading}
+            placeholder=""
           />
+
+          <TextField
+            margin="dense"
+            id="email"
+            label="Email"
+            fullWidth
+            variant="standard"
+            value={vm.email}
+            onChange={(e) => vm.setEmail(e.currentTarget.value)}
+            disabled={vm.loading}
+            type="email"
+          />
+
+          <LocalizationProvider dateAdapter={AdapterDateFns}>
+            <DatePicker<Date>
+              label="Дата рождения"
+              value={vm.birthday}
+              onChange={(newValue) => vm.setBirthday(newValue)}
+              inputFormat="dd.MM.yyyy"
+              mask="__.__.____"
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  margin="dense"
+                  fullWidth
+                  id="birthday"
+                  variant="standard"
+                />
+              )}
+            />
+          </LocalizationProvider>
         </DialogContent>
+
         <DialogActions>
           <Button onClick={vm.onClose} color="secondary" disabled={vm.loading}>
             {"Отмена"}
@@ -87,6 +140,7 @@ export const UserModal: FC<Props> = (props) => {
           <Button
             onClick={vm.onAcceptAsync}
             color="primary"
+            variant="contained"
             disabled={vm.isDisabled}
           >
             {"Добавить"}

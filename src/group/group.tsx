@@ -82,7 +82,7 @@ export const Group = () => {
           columns={columns}
           pageSize={10}
           rowsPerPageOptions={[10]}
-        />{" "}
+        />
       </GridRoot>
     </Root>
   )

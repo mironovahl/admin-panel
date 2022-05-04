@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react"
 import { sha256 } from "crypto-hash"
+import { createUserWithEmailAndPassword } from "firebase/auth"
 import {
   addDoc,
   collection,
@@ -14,6 +15,7 @@ import { useRouter } from "next/router"
 import { v4 } from "uuid"
 
 import { useFirebaseContext } from "../firebase-context"
+import { useAuthContext } from "../login/auth-context"
 import { Group, User } from "../types"
 
 export const useVM = () => {
@@ -22,21 +24,31 @@ export const useVM = () => {
 
   const { db } = useFirebaseContext()
 
+  const { auth } = useAuthContext()
+
   const [users, setUsers] = useState<User[]>([])
   const [groupData, setGroupData] = useState<Group | null>(null)
   const [loading, setLoading] = useState(true)
 
-  const addUserAsync = async (userName: string) => {
+  const addUserAsync = async (values: {
+    name: string
+    email: string
+    birthday: string
+  }) => {
+    const { name, birthday, email } = values
     // Add a new document in collection "cities"
     const hash = await sha256(Math.random().toString())
 
     await addDoc(collection(db, "users"), {
-      name: userName,
+      name,
       groupId: groupData?.id ?? "",
       status: "pending",
       hash,
       id: v4(),
     })
+
+    // use birthday in dd.mm.yyyy format
+    await createUserWithEmailAndPassword(auth, email, birthday)
   }
 
   const getUsersAsync = useCallback(async () => {

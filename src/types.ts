@@ -3,6 +3,7 @@ export interface User {
   groupId: string
   hash: string
   name: string
+  birthdate: string
   status: "issued" | "pending" | "blocked"
 }
 export interface Group {
