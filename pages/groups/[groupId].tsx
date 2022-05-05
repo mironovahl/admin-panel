@@ -4,7 +4,7 @@ import { WithAuth } from "src/with-auth"
 
 export default () => {
   return (
-    <WithAuth isProtectedPage>
+    <WithAuth isProtectedPage roles={["admin", null]}>
       <Group />
     </WithAuth>
   )

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react"
 import { sha256 } from "crypto-hash"
-import { createUserWithEmailAndPassword } from "firebase/auth"
+import { initializeApp } from "firebase/app"
+import { createUserWithEmailAndPassword, getAuth } from "firebase/auth"
 import {
   addDoc,
   collection,
@@ -12,10 +13,9 @@ import {
 } from "firebase/firestore"
 import uniqBy from "lodash/uniqBy"
 import { useRouter } from "next/router"
-import { v4 } from "uuid"
 
+import { config } from "../config"
 import { useFirebaseContext } from "../firebase-context"
-import { useAuthContext } from "../login/auth-context"
 import { Group, User } from "../types"
 
 export const useVM = () => {
@@ -23,8 +23,6 @@ export const useVM = () => {
   const { groupId } = router.query
 
   const { db } = useFirebaseContext()
-
-  const { auth } = useAuthContext()
 
   const [users, setUsers] = useState<User[]>([])
   const [groupData, setGroupData] = useState<Group | null>(null)
@@ -36,6 +34,20 @@ export const useVM = () => {
     birthday: string
   }) => {
     const { name, birthday, email } = values
+
+    // otherwise current user would be replaced by the created
+    const secondApp = initializeApp(config.firebaseConfig, "second")
+    const secondAuth = getAuth(secondApp)
+
+    // use birthday in dd.mm.yyyy format
+    const newUser = await createUserWithEmailAndPassword(
+      secondAuth,
+      email,
+      birthday,
+    )
+
+    await secondAuth.signOut()
+
     // Add a new document in collection "cities"
     const hash = await sha256(Math.random().toString())
 
@@ -44,11 +56,10 @@ export const useVM = () => {
       groupId: groupData?.id ?? "",
       status: "pending",
       hash,
-      id: v4(),
+      birthday,
+      id: newUser.user.uid,
+      role: "student",
     })
-
-    // use birthday in dd.mm.yyyy format
-    await createUserWithEmailAndPassword(auth, email, birthday)
   }
 
   const getUsersAsync = useCallback(async () => {

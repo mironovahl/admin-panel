@@ -32,10 +32,12 @@ const colors: Record<User["status"], "error" | "info" | "success"> = {
 }
 
 const columns: GridColDef[] = [
-  { field: "name", headerName: "Student name", minWidth: 240 },
+  { field: "name", headerName: "Имя", minWidth: 240 },
+  { field: "birthday", headerName: "Дата рождения", minWidth: 240 },
+
   {
     field: "status",
-    headerName: "Certificate status",
+    headerName: "Статус сертификата",
     minWidth: 140,
     renderCell: (props) => {
       const Icon =

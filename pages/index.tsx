@@ -13,15 +13,27 @@ const Root = styled(Box)`
   align-items: center;
 `
 
+const routes = new Map([
+  ["admin", "/groups"],
+  ["student", "/profile"],
+  [null, "/login"],
+])
+
 const useInitialRedirect = () => {
-  const { user } = useAuthContext()
+  const { userRole, loading } = useAuthContext()
   const router = useRouter()
 
   useEffect(() => {
-    const path = user ? "/groups" : "/login"
+    if (loading) {
+      return
+    }
 
-    ;(async () => await router.push(path))()
-  }, [router, user])
+    const path = routes.get(userRole)
+
+    if (path) {
+      ;(async () => await router.push(path))()
+    }
+  }, [loading, router, userRole])
 }
 
 const Home: NextPage = () => {

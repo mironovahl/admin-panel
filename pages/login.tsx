@@ -12,7 +12,7 @@ const Root = styled(Box)`
 `
 
 const Login = () => (
-  <WithAuth isProtectedPage={false}>
+  <WithAuth isProtectedPage={false} roles={[null]}>
     <LoginPage />
   </WithAuth>
 )

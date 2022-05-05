@@ -10,6 +10,9 @@ import {
   useState,
 } from "react"
 import { Auth, getAuth, signOut, User } from "firebase/auth"
+import { collection, getDocs, query, where } from "firebase/firestore"
+
+import { User as SavedUser } from "src/types"
 
 import { useFirebaseContext } from "../firebase-context"
 
@@ -24,17 +27,19 @@ interface IAuthContext {
   setStep: Dispatch<SetStateAction<number>>
   loading: boolean
   logoutAsync: () => Promise<void>
+  userRole: "admin" | "student" | null
 }
 
 export const AuthContext = createContext<IAuthContext>({} as IAuthContext)
 
 const useAuth = () => {
-  const { app } = useFirebaseContext()
+  const { app, db } = useFirebaseContext()
   const auth = getAuth(app)
 
   const [user, setUser] = useState<User | null>(auth?.currentUser ?? null)
   const [tempUser, setTempUser] = useState<User | undefined>()
   const [step, setStep] = useState(0)
+  const [userRole, setUserRole] = useState<"admin" | "student" | null>(null)
 
   const [loading, setLoading] = useState(true)
 
@@ -43,11 +48,34 @@ const useAuth = () => {
   }, [auth])
 
   useEffect(() => {
-    auth.onAuthStateChanged((currentUser) => {
+    auth.onAuthStateChanged(async (currentUser) => {
+      setLoading(true)
       setUser(currentUser)
+
+      if (currentUser) {
+        const q = query(
+          collection(db, "users"),
+          where("id", "==", currentUser?.uid),
+        )
+
+        const querySnapshot = await getDocs(q)
+
+        querySnapshot.forEach((doc) => {
+          const fetchedUser = doc.data() as SavedUser
+
+          if (fetchedUser.id === currentUser.uid) {
+            setUserRole(fetchedUser.role)
+          }
+        })
+      }
+
+      if (!currentUser) {
+        setUserRole(null)
+      }
+
       setLoading(false)
     })
-  }, [auth])
+  }, [auth, db])
 
   return useMemo(
     () => ({
@@ -60,8 +88,9 @@ const useAuth = () => {
       setStep,
       loading,
       logoutAsync,
+      userRole,
     }),
-    [auth, loading, logoutAsync, step, tempUser, user],
+    [auth, loading, logoutAsync, step, tempUser, user, userRole],
   )
 }
 

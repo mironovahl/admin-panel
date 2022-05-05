@@ -3,6 +3,7 @@ import { Box, CircularProgress, styled } from "@mui/material"
 import { useRouter } from "next/router"
 
 import { useAuthContext } from "./login/auth-context"
+import { User } from "./types"
 
 const Root = styled(Box)`
   display: flex;
@@ -12,8 +13,9 @@ const Root = styled(Box)`
   align-items: center;
 `
 
-const useAuth = (isProtectedPage: boolean) => {
-  const { user, loading } = useAuthContext()
+const useAuth = (arg: Props) => {
+  const { isProtectedPage, roles } = arg
+  const { user, userRole, loading } = useAuthContext()
 
   const router = useRouter()
 
@@ -28,20 +30,31 @@ const useAuth = (isProtectedPage: boolean) => {
       return
     }
 
+    if (isProtectedPage && !roles.includes(userRole)) {
+      router.push("/")
+
+      return
+    }
+
     if (!isProtectedPage && user) {
       router.push("/")
 
       return
     }
-  }, [isProtectedPage, loading, router, user])
+  }, [isProtectedPage, loading, roles, router, user, userRole])
 
   return { loading }
 }
 
-export const WithAuth: FC<{ isProtectedPage: boolean }> = (props) => {
-  const { isProtectedPage, children } = props
+interface Props {
+  isProtectedPage: boolean
+  roles: (User["role"] | null)[]
+}
 
-  const { loading } = useAuth(isProtectedPage)
+export const WithAuth: FC<Props> = (props) => {
+  const { children, ...rest } = props
+
+  const { loading } = useAuth(rest)
 
   if (loading) {
     return (

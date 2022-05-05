@@ -6,9 +6,9 @@ const Auth = [FirstFactorAuth, SecondFactorAuth]
 
 const useVM = () => {
   const { step } = useAuthContext()
-  const Сontent = Auth[step]
+  const Content = Auth[step]
 
-  return { Сontent }
+  return { Content }
 }
 
 export const LoginPage = () => {
@@ -16,7 +16,7 @@ export const LoginPage = () => {
 
   return (
     <div>
-      <vm.Сontent />
+      <vm.Content />
     </div>
   )
 }
