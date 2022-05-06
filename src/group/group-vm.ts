@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react"
+import { uuidv4 } from "@firebase/app-check/dist/src/util"
 import { sha256 } from "crypto-hash"
 import { initializeApp } from "firebase/app"
 import { createUserWithEmailAndPassword, getAuth } from "firebase/auth"
@@ -57,7 +58,11 @@ export const useVM = () => {
       status: "pending",
       hash,
       birthday,
-      id: newUser.user.uid,
+      id: uuidv4(),
+    })
+
+    await addDoc(collection(db, "userRoles"), {
+      userId: newUser.user.uid,
       role: "student",
     })
   }

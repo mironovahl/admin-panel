@@ -5,11 +5,15 @@ export interface User {
   name: string
   birthdate: string
   status: "issued" | "pending" | "blocked"
-  role: "student" | "admin"
 }
 export interface Group {
   id: string
   name: string
   semester: number
   users?: User[]
+}
+
+export interface UserRole {
+  userId: string
+  role: "student" | "admin"
 }

@@ -12,7 +12,7 @@ import {
 import { Auth, getAuth, signOut, User } from "firebase/auth"
 import { collection, getDocs, query, where } from "firebase/firestore"
 
-import { User as SavedUser } from "src/types"
+import { UserRole } from "src/types"
 
 import { useFirebaseContext } from "../firebase-context"
 
@@ -54,17 +54,17 @@ const useAuth = () => {
 
       if (currentUser) {
         const q = query(
-          collection(db, "users"),
-          where("id", "==", currentUser?.uid),
+          collection(db, "userRoles"),
+          where("userId", "==", currentUser?.uid),
         )
 
         const querySnapshot = await getDocs(q)
 
         querySnapshot.forEach((doc) => {
-          const fetchedUser = doc.data() as SavedUser
+          const fetchedUser = doc.data() as UserRole
 
-          if (fetchedUser.id === currentUser.uid) {
-            setUserRole(fetchedUser.role)
+          if (fetchedUser?.userId === currentUser?.uid) {
+            setUserRole(fetchedUser?.role ?? null)
           }
         })
       }
