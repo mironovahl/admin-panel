@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from "react"
-import { uuidv4 } from "@firebase/app-check/dist/src/util"
 import { sha256 } from "crypto-hash"
 import { initializeApp } from "firebase/app"
 import { createUserWithEmailAndPassword, getAuth } from "firebase/auth"
@@ -14,6 +13,7 @@ import {
 } from "firebase/firestore"
 import uniqBy from "lodash/uniqBy"
 import { useRouter } from "next/router"
+import { v4 } from "uuid"
 
 import { config } from "../config"
 import { useFirebaseContext } from "../firebase-context"
@@ -58,7 +58,7 @@ export const useVM = () => {
       status: "pending",
       hash,
       birthday,
-      id: uuidv4(),
+      id: v4(),
     })
 
     await addDoc(collection(db, "userRoles"), {

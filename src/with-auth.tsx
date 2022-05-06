@@ -3,7 +3,7 @@ import { Box, CircularProgress, styled } from "@mui/material"
 import { useRouter } from "next/router"
 
 import { useAuthContext } from "./login/auth-context"
-import { User } from "./types"
+import { UserRole } from "./types"
 
 const Root = styled(Box)`
   display: flex;
@@ -48,7 +48,7 @@ const useAuth = (arg: Props) => {
 
 interface Props {
   isProtectedPage: boolean
-  roles: (User["role"] | null)[]
+  roles: (UserRole["role"] | null)[]
 }
 
 export const WithAuth: FC<Props> = (props) => {
