@@ -1,16 +1,17 @@
 import { ChangeEvent, Fragment, useCallback, useEffect, useState } from "react"
-import { Button, TextField } from "@mui/material"
+import { Box, Button, TextField } from "@mui/material"
 import {
   ConfirmationResult,
-  linkWithPhoneNumber,
   RecaptchaVerifier,
   signInWithPhoneNumber,
 } from "firebase/auth"
+import { useRouter } from "next/router"
 
 import { useAuthContext } from "./auth-context"
 
 const useVM = () => {
-  const { setUser, tempUser, auth } = useAuthContext()
+  const { setUser, tempUser, auth, setTempUser } = useAuthContext()
+  const router = useRouter()
 
   const [pin, setPin] = useState("")
   const [pinCb, setPinCb] = useState<null | ConfirmationResult>(null)
@@ -34,17 +35,13 @@ const useVM = () => {
     }
 
     if (tempUser && !tempUser?.phoneNumber) {
-      const appVerifier = new RecaptchaVerifier("recaptcha-container", {}, auth)
+      setUser(tempUser)
 
-      const res = await linkWithPhoneNumber(
-        tempUser,
-        "+79952974342",
-        appVerifier,
-      )
-
-      setPinCb(res)
+      await router.push("/")
     }
-  }, [auth, tempUser])
+
+    setTempUser(null)
+  }, [auth, router, setTempUser, setUser, tempUser])
 
   useEffect(() => {
     ;(async () => await getCodeAsync())()
@@ -78,7 +75,13 @@ export const SecondFactorAuth = () => {
   const vm = useVM()
 
   return (
-    <div>
+    <Box
+      maxWidth={400}
+      marginX="auto"
+      display="flex"
+      flexDirection="column"
+      gap="20px"
+    >
       {vm.recaptchaComplete && (
         <Fragment>
           <TextField
@@ -96,6 +99,6 @@ export const SecondFactorAuth = () => {
       )}
 
       {!vm.recaptchaComplete && <div id="recaptcha-container" />}
-    </div>
+    </Box>
   )
 }

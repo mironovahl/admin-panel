@@ -1,9 +1,17 @@
-import { ChangeEvent, useCallback, useState } from "react"
+import { ChangeEvent, FormEvent, useCallback, useState } from "react"
 import { browserLocalPersistence } from "@firebase/auth"
-import { Box, Button, TextField } from "@mui/material"
+import { Button, styled, TextField } from "@mui/material"
 import { setPersistence, signInWithEmailAndPassword } from "firebase/auth"
 
 import { useAuthContext } from "./auth-context"
+
+const Root = styled("form")`
+  max-width: 400px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+`
 
 const useVM = () => {
   const { setTempUser, auth, setStep } = useAuthContext()
@@ -25,24 +33,29 @@ const useVM = () => {
       setter(event.target.value)
     }
 
-  const onSubmit = useCallback(async () => {
-    try {
-      await setPersistence(auth, browserLocalPersistence)
+  const onSubmit = useCallback(
+    async (event: FormEvent) => {
+      event.preventDefault()
 
-      const { user } = await signInWithEmailAndPassword(
-        auth,
-        loginValue,
-        passwordValue,
-      )
+      try {
+        await setPersistence(auth, browserLocalPersistence)
 
-      setTempUser(user)
-      setStep((step) => step + 1)
-    } catch (error) {
-      if (error instanceof Error) {
-        setErr(error.message)
+        const { user } = await signInWithEmailAndPassword(
+          auth,
+          loginValue,
+          passwordValue,
+        )
+
+        setTempUser(user)
+        setStep((step) => step + 1)
+      } catch (error) {
+        if (error instanceof Error) {
+          setErr(error.message)
+        }
       }
-    }
-  }, [auth, loginValue, passwordValue, setStep, setTempUser])
+    },
+    [auth, loginValue, passwordValue, setStep, setTempUser],
+  )
 
   return {
     onSubmit,
@@ -56,13 +69,7 @@ export const FirstFactorAuth = () => {
   const vm = useVM()
 
   return (
-    <Box
-      maxWidth={400}
-      marginX="auto"
-      display="flex"
-      flexDirection="column"
-      gap="20px"
-    >
+    <Root onSubmit={vm.onSubmit}>
       <TextField
         placeholder="Enter your email"
         type="email"
@@ -78,9 +85,9 @@ export const FirstFactorAuth = () => {
         onChange={vm.getOnChangeHandler("password")}
       />
 
-      <Button type="submit" variant="contained" onClick={vm.onSubmit}>
+      <Button type="submit" variant="contained">
         {"Login"}
       </Button>
-    </Box>
+    </Root>
   )
 }

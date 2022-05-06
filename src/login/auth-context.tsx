@@ -11,6 +11,7 @@ import {
 } from "react"
 import { Auth, getAuth, signOut, User } from "firebase/auth"
 import { collection, getDocs, query, where } from "firebase/firestore"
+import { useRouter } from "next/router"
 
 import { UserRole } from "src/types"
 
@@ -21,8 +22,8 @@ interface IAuthContext {
   error?: string
   user: User | null
   setUser: Dispatch<SetStateAction<User | null>>
-  tempUser?: User
-  setTempUser: Dispatch<SetStateAction<User | undefined>>
+  tempUser: User | null
+  setTempUser: Dispatch<SetStateAction<User | null>>
   step: number
   setStep: Dispatch<SetStateAction<number>>
   loading: boolean
@@ -36,8 +37,10 @@ const useAuth = () => {
   const { app, db } = useFirebaseContext()
   const auth = getAuth(app)
 
+  const router = useRouter()
+
   const [user, setUser] = useState<User | null>(auth?.currentUser ?? null)
-  const [tempUser, setTempUser] = useState<User | undefined>()
+  const [tempUser, setTempUser] = useState<User | null>(null)
   const [step, setStep] = useState(0)
   const [userRole, setUserRole] = useState<"admin" | "student" | null>(null)
 
@@ -45,7 +48,8 @@ const useAuth = () => {
 
   const logoutAsync = useCallback(async () => {
     await signOut(auth)
-  }, [auth])
+    await router.push("/login")
+  }, [auth, router])
 
   useEffect(() => {
     auth.onAuthStateChanged(async (currentUser) => {
@@ -75,7 +79,7 @@ const useAuth = () => {
 
       setLoading(false)
     })
-  }, [auth, db])
+  }, [auth, db, step])
 
   return useMemo(
     () => ({

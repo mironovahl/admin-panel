@@ -15,7 +15,7 @@ const Root = styled(Box)`
 
 const useAuth = (arg: Props) => {
   const { isProtectedPage, roles } = arg
-  const { user, userRole, loading } = useAuthContext()
+  const { user, userRole, loading, tempUser } = useAuthContext()
 
   const router = useRouter()
 
@@ -36,12 +36,12 @@ const useAuth = (arg: Props) => {
       return
     }
 
-    if (!isProtectedPage && user) {
+    if (!isProtectedPage && user && !tempUser) {
       router.push("/")
 
       return
     }
-  }, [isProtectedPage, loading, roles, router, user, userRole])
+  }, [isProtectedPage, loading, roles, router, tempUser, user, userRole])
 
   return { loading }
 }

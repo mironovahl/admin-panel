@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import { ReactNode, useEffect } from "react"
 import { Box, CircularProgress, styled } from "@mui/material"
 import type { NextPage } from "next"
 import { useRouter } from "next/router"
@@ -44,6 +44,13 @@ const Home: NextPage = () => {
       <CircularProgress />
     </Root>
   )
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+;(Home as any).layout = (props: { children: ReactNode }) => {
+  const { children } = props
+
+  return <Root>{children}</Root>
 }
 
 export default Home

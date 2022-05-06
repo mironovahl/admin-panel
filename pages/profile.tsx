@@ -1,3 +1,10 @@
+import { Profile } from "src/profile"
+import { WithAuth } from "src/with-auth"
+
 export default () => {
-  return <div>{"work in progress"}</div>
+  return (
+    <WithAuth isProtectedPage roles={["student"]}>
+      <Profile />
+    </WithAuth>
+  )
 }
