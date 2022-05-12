@@ -1,13 +1,14 @@
-import { FC } from "react"
-import AutorenewIcon from "@mui/icons-material/Autorenew"
-import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline"
-import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline"
-import HelpOutlineIcon from "@mui/icons-material/HelpOutline"
-import { Box, Button, styled, Typography } from "@mui/material"
-import { DataGrid, GridColDef } from "@mui/x-data-grid"
+import { Box, styled, Typography } from "@mui/material"
+import {
+  DataGrid,
+  GridColDef,
+  GridValueFormatterParams,
+} from "@mui/x-data-grid"
+import format from "date-fns/format"
 
-import { User } from "../types"
+import { config } from "../config"
 import { useVM } from "./group-vm"
+import { StatusCell } from "./status-cell"
 import { UserModal } from "./user-modal"
 
 const Root = styled(Box)`
@@ -20,44 +21,36 @@ const GridRoot = styled(Box)`
   margin-top: 8px;
 `
 
-const iconMap: Record<User["status"], FC> = {
-  issued: CheckCircleOutlineIcon,
-  pending: AutorenewIcon,
-  blocked: ErrorOutlineIcon,
-  requested: HelpOutlineIcon,
-}
-
-const colors: Record<User["status"], "error" | "info" | "success" | "warning"> =
-  {
-    issued: "success",
-    pending: "info",
-    blocked: "error",
-    requested: "warning",
+const getDateFormatter =
+  (dateFormat: string) => (params: GridValueFormatterParams) => {
+    return format(new Date((params?.value as string) ?? 0), dateFormat)
   }
 
 const columns: GridColDef[] = [
   { field: "name", headerName: "Имя", minWidth: 240 },
-  { field: "birthday", headerName: "Дата рождения", minWidth: 140 },
-  { field: "createdAt", headerName: "Дата создания", minWidth: 140 },
-  { field: "updatedAt", headerName: "Дата обновления", minWidth: 140 },
+  {
+    field: "birthday",
+    headerName: "Дата рождения",
+    minWidth: 140,
+    valueFormatter: getDateFormatter("dd.MM.yyyy"),
+  },
+  {
+    field: "createdAt",
+    headerName: "Дата создания",
+    minWidth: 140,
+    valueFormatter: getDateFormatter(config.CERTIFICATE_DATE_FORMAT),
+  },
+  {
+    field: "updatedAt",
+    headerName: "Дата обновления",
+    minWidth: 140,
+    valueFormatter: getDateFormatter(config.CERTIFICATE_DATE_FORMAT),
+  },
   {
     field: "status",
     headerName: "Статус сертификата",
     minWidth: 200,
-    renderCell: (props) => {
-      const Icon =
-        iconMap[props.value as keyof typeof iconMap] ?? ErrorOutlineIcon
-
-      return (
-        <Button
-          startIcon={<Icon />}
-          variant="outlined"
-          color={colors[props.value as keyof typeof colors] ?? "default"}
-        >
-          {props.value}
-        </Button>
-      )
-    },
+    renderCell: StatusCell,
   },
 ]
 

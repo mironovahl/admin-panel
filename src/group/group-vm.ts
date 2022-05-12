@@ -11,16 +11,17 @@ import { createUserWithEmailAndPassword, getAuth } from "firebase/auth"
 import {
   addDoc,
   collection,
+  doc,
   getDocs,
   onSnapshot,
   query,
+  setDoc,
   Unsubscribe,
   updateDoc,
   where,
 } from "firebase/firestore"
 import uniqBy from "lodash/uniqBy"
 import { useRouter } from "next/router"
-import { v4 } from "uuid"
 
 import { config } from "../config"
 import { useFirebaseContext } from "../firebase-context"
@@ -39,7 +40,7 @@ export const useVM = () => {
 
   const { db } = useFirebaseContext()
 
-  const [users, setUsers] = useState<User[]>([])
+  const [users, setUsers] = useState<Array<User>>([])
   const [groupData, setGroupData] = useState<Group | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -97,13 +98,13 @@ export const useVM = () => {
 
     const createdAt = new Date().toISOString()
 
-    const addedUserRef = await addDoc(collection(db, "users"), {
+    await setDoc(doc(db, "users", newUser.user.uid), {
       name,
       groupId: groupData?.id ?? "",
       status: "pending",
       hash,
       birthday,
-      id: v4(),
+      id: newUser.user.uid,
       createdAt,
       updatedAt: createdAt,
     })
@@ -116,7 +117,7 @@ export const useVM = () => {
     const randomTimeout = getRandomIntFromInterval(3, 10)
 
     timeoutRef.current = setTimeout(async () => {
-      await updateDoc(addedUserRef, {
+      await updateDoc(doc(db, "users", newUser.user.uid), {
         status: "issued",
         updatedAt: new Date().toISOString(),
       })
@@ -127,9 +128,9 @@ export const useVM = () => {
     const q = query(collection(db, "users"), where("groupId", "==", groupId))
 
     return onSnapshot(q, (querySnapshot) => {
-      querySnapshot.forEach((doc) => {
+      querySnapshot.forEach((docData) => {
         setUsers((prevUsers) =>
-          uniqBy([doc.data() as User, ...prevUsers], "id"),
+          uniqBy([docData.data() as User, ...prevUsers], "id"),
         )
       })
     })
@@ -140,8 +141,8 @@ export const useVM = () => {
 
     const querySnapshot = await getDocs(q)
 
-    querySnapshot.forEach((doc) => {
-      setGroupData(doc.data() as Group)
+    querySnapshot.forEach((docData) => {
+      setGroupData(docData.data() as Group)
     })
   }, [db, groupId])
 

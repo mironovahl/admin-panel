@@ -10,4 +10,7 @@ const firebaseConfig = {
   measurementId: "G-T1FPZ0HV55",
 }
 
-export const config = { firebaseConfig }
+export const config = {
+  firebaseConfig,
+  CERTIFICATE_DATE_FORMAT: "dd.MM.yyyy HH:mm",
+}

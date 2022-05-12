@@ -1,10 +1,12 @@
+export type Status = "issued" | "pending" | "blocked" | "requested"
+
 export interface User {
   id: string
   groupId: string
   hash: string
   name: string
   birthdate: string
-  status: "issued" | "pending" | "blocked" | "requested"
+  status: Status
   createdAt: string
   updatedAt: string
 }
