@@ -1,8 +1,9 @@
 import { FC } from "react"
 import AutorenewIcon from "@mui/icons-material/Autorenew"
-import CheckIcon from "@mui/icons-material/Check"
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline"
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline"
-import { Box, Chip, styled, Typography } from "@mui/material"
+import HelpOutlineIcon from "@mui/icons-material/HelpOutline"
+import { Box, Button, styled, Typography } from "@mui/material"
 import { DataGrid, GridColDef } from "@mui/x-data-grid"
 
 import { User } from "../types"
@@ -20,43 +21,41 @@ const GridRoot = styled(Box)`
 `
 
 const iconMap: Record<User["status"], FC> = {
-  issued: CheckIcon,
+  issued: CheckCircleOutlineIcon,
   pending: AutorenewIcon,
   blocked: ErrorOutlineIcon,
+  requested: HelpOutlineIcon,
 }
 
-const colors: Record<User["status"], "error" | "info" | "success"> = {
-  issued: "success",
-  pending: "info",
-  blocked: "error",
-}
+const colors: Record<User["status"], "error" | "info" | "success" | "warning"> =
+  {
+    issued: "success",
+    pending: "info",
+    blocked: "error",
+    requested: "warning",
+  }
 
 const columns: GridColDef[] = [
   { field: "name", headerName: "Имя", minWidth: 240 },
-  { field: "birthday", headerName: "Дата рождения", minWidth: 240 },
-
+  { field: "birthday", headerName: "Дата рождения", minWidth: 140 },
+  { field: "createdAt", headerName: "Дата создания", minWidth: 140 },
+  { field: "updatedAt", headerName: "Дата обновления", minWidth: 140 },
   {
     field: "status",
     headerName: "Статус сертификата",
-    minWidth: 140,
+    minWidth: 200,
     renderCell: (props) => {
       const Icon =
         iconMap[props.value as keyof typeof iconMap] ?? ErrorOutlineIcon
 
       return (
-        <Box
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-          width="100%"
+        <Button
+          startIcon={<Icon />}
+          variant="outlined"
+          color={colors[props.value as keyof typeof colors] ?? "default"}
         >
-          <Chip
-            variant="outlined"
-            icon={<Icon />}
-            label={props.value}
-            color={colors[props.value as keyof typeof colors] ?? "default"}
-          />
-        </Box>
+          {props.value}
+        </Button>
       )
     },
   },
@@ -79,7 +78,6 @@ export const Group = () => {
       <GridRoot>
         <DataGrid
           loading={vm.loading}
-          // onRowClick={(row) => vm.redirectToGroupAsync(String(row.id))}
           rows={vm.users}
           columns={columns}
           pageSize={10}

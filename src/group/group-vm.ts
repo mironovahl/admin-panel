@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { sha256 } from "crypto-hash"
 import { initializeApp } from "firebase/app"
 import { createUserWithEmailAndPassword, getAuth } from "firebase/auth"
@@ -9,6 +9,7 @@ import {
   onSnapshot,
   query,
   Unsubscribe,
+  updateDoc,
   where,
 } from "firebase/firestore"
 import uniqBy from "lodash/uniqBy"
@@ -19,6 +20,11 @@ import { config } from "../config"
 import { useFirebaseContext } from "../firebase-context"
 import { Group, User } from "../types"
 
+const getRandomIntFromInterval = (min: number, max: number) => {
+  // min and max included
+  return Math.floor(Math.random() * (max - min + 1) + min)
+}
+
 export const useVM = () => {
   const router = useRouter()
   const { groupId } = router.query
@@ -28,6 +34,18 @@ export const useVM = () => {
   const [users, setUsers] = useState<User[]>([])
   const [groupData, setGroupData] = useState<Group | null>(null)
   const [loading, setLoading] = useState(true)
+
+  const timeoutRef = useRef<NodeJS.Timeout>()
+
+  useEffect(() => {
+    const timeoutId = timeoutRef.current
+
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId)
+      }
+    }
+  }, [])
 
   const addUserAsync = async (values: {
     name: string
@@ -52,19 +70,32 @@ export const useVM = () => {
     // Add a new document in collection "cities"
     const hash = await sha256(Math.random().toString())
 
-    await addDoc(collection(db, "users"), {
+    const createdAt = new Date().toISOString()
+
+    const addedUserRef = await addDoc(collection(db, "users"), {
       name,
       groupId: groupData?.id ?? "",
       status: "pending",
       hash,
       birthday,
       id: v4(),
+      createdAt,
+      updatedAt: createdAt,
     })
 
     await addDoc(collection(db, "userRoles"), {
       userId: newUser.user.uid,
       role: "student",
     })
+
+    const randomTimeout = getRandomIntFromInterval(3, 10)
+
+    timeoutRef.current = setTimeout(async () => {
+      await updateDoc(addedUserRef, {
+        status: "issued",
+        updatedAt: new Date().toISOString(),
+      })
+    }, randomTimeout)
   }
 
   const getUsersAsync = useCallback(async () => {
@@ -73,7 +104,7 @@ export const useVM = () => {
     return onSnapshot(q, (querySnapshot) => {
       querySnapshot.forEach((doc) => {
         setUsers((prevUsers) =>
-          uniqBy([...prevUsers, doc.data() as User], "id"),
+          uniqBy([doc.data() as User, ...prevUsers], "id"),
         )
       })
     })

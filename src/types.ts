@@ -4,7 +4,9 @@ export interface User {
   hash: string
   name: string
   birthdate: string
-  status: "issued" | "pending" | "blocked"
+  status: "issued" | "pending" | "blocked" | "requested"
+  createdAt: string
+  updatedAt: string
 }
 export interface Group {
   id: string
