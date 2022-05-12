@@ -13,10 +13,10 @@ import { UserModal } from "./user-modal"
 const Root = styled(Box)`
   display: flex;
   flex-direction: column;
+  height: 100%;
 `
 
 const GridRoot = styled(Box)`
-  height: 500px;
   margin-top: 8px;
 `
 
@@ -65,17 +65,19 @@ export const Group = () => {
   const vm = useVM()
 
   return (
-    <Root>
-      <Box>
-        <Typography>{`Группа: ${vm.groupData?.name}`}</Typography>
-        <Typography>{`Семестр: ${vm.groupData?.semester}`}</Typography>
+    <Root ref={vm.rootRef}>
+      <Box ref={vm.infoRef}>
+        <Box>
+          <Typography>{`Группа: ${vm.groupData?.name}`}</Typography>
+          <Typography>{`Семестр: ${vm.groupData?.semester}`}</Typography>
+        </Box>
+
+        <Box marginTop={1}>
+          <UserModal onAdd={vm.addUserAsync} />
+        </Box>
       </Box>
 
-      <Box marginTop={1}>
-        <UserModal onAdd={vm.addUserAsync} />
-      </Box>
-
-      <GridRoot>
+      <GridRoot height={vm.tableHeight}>
         <DataGrid
           loading={vm.loading}
           rows={vm.users}

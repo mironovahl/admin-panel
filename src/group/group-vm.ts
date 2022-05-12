@@ -1,4 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from "react"
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react"
 import { sha256 } from "crypto-hash"
 import { initializeApp } from "firebase/app"
 import { createUserWithEmailAndPassword, getAuth } from "firebase/auth"
@@ -25,6 +31,8 @@ const getRandomIntFromInterval = (min: number, max: number) => {
   return Math.floor(Math.random() * (max - min + 1) + min)
 }
 
+const TABLE_PADDING = 24
+
 export const useVM = () => {
   const router = useRouter()
   const { groupId } = router.query
@@ -35,6 +43,11 @@ export const useVM = () => {
   const [groupData, setGroupData] = useState<Group | null>(null)
   const [loading, setLoading] = useState(true)
 
+  const [tableHeight, setTableHeight] = useState(500)
+
+  const rootRef = useRef<HTMLDivElement>()
+  const infoRef = useRef<HTMLDivElement>()
+
   const timeoutRef = useRef<NodeJS.Timeout>()
 
   useEffect(() => {
@@ -44,6 +57,18 @@ export const useVM = () => {
       if (timeoutId) {
         clearTimeout(timeoutId)
       }
+    }
+  }, [])
+
+  useLayoutEffect(() => {
+    const root = rootRef.current
+    const info = infoRef.current
+
+    if (root && info) {
+      const rootRect = root.getBoundingClientRect()
+      const infoRect = info.getBoundingClientRect()
+
+      setTableHeight(rootRect.height - infoRect.height - TABLE_PADDING)
     }
   }, [])
 
@@ -137,5 +162,13 @@ export const useVM = () => {
     }
   }, [getGroupAsync, getUsersAsync, groupId])
 
-  return { users, groupData, loading, addUserAsync }
+  return {
+    users,
+    groupData,
+    loading,
+    addUserAsync,
+    rootRef,
+    infoRef,
+    tableHeight,
+  }
 }
