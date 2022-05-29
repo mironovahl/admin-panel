@@ -3,6 +3,7 @@ import { browserLocalPersistence } from "@firebase/auth"
 import { Button, styled, TextField } from "@mui/material"
 import { setPersistence, signInWithEmailAndPassword } from "firebase/auth"
 
+import { useLogger } from "../logger"
 import { useAuthContext } from "./auth-context"
 
 const Root = styled("form")`
@@ -15,6 +16,7 @@ const Root = styled("form")`
 
 const useVM = () => {
   const { setTempUser, auth, setStep } = useAuthContext()
+  const logger = useLogger()
 
   const [loginValue, setLogin] = useState("")
   const [passwordValue, setPassword] = useState("")
@@ -46,15 +48,18 @@ const useVM = () => {
           passwordValue,
         )
 
+        await logger("sign-in")
+
         setTempUser(user)
         setStep((step) => step + 1)
       } catch (error) {
         if (error instanceof Error) {
           setErr(error.message)
+          await logger("sign-in-failure")
         }
       }
     },
-    [auth, loginValue, passwordValue, setStep, setTempUser],
+    [auth, logger, loginValue, passwordValue, setStep, setTempUser],
   )
 
   return {

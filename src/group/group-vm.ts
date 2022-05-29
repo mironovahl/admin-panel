@@ -25,7 +25,9 @@ import { useRouter } from "next/router"
 
 import { config } from "../config"
 import { useFirebaseContext } from "../firebase-context"
+import { useLogger } from "../logger"
 import { Group, User } from "../types"
+import { getIsoDate } from "../utils/get-iso-date"
 
 const getRandomIntFromInterval = (min: number, max: number) => {
   // min and max included
@@ -39,6 +41,7 @@ export const useVM = () => {
   const { groupId } = router.query
 
   const { db } = useFirebaseContext()
+  const logger = useLogger()
 
   const [users, setUsers] = useState<Array<User>>([])
   const [groupData, setGroupData] = useState<Group | null>(null)
@@ -96,7 +99,7 @@ export const useVM = () => {
     // Add a new document in collection "cities"
     const hash = await sha256(Math.random().toString())
 
-    const createdAt = new Date().toISOString()
+    const createdAt = getIsoDate()
 
     await setDoc(doc(db, "users", newUser.user.uid), {
       name,
@@ -114,12 +117,21 @@ export const useVM = () => {
       role: "student",
     })
 
+    await logger("user-created", { id: newUser.user.uid, name })
+
     const randomTimeout = getRandomIntFromInterval(3, 10)
 
     timeoutRef.current = setTimeout(async () => {
+      const status = "issued"
+
       await updateDoc(doc(db, "users", newUser.user.uid), {
-        status: "issued",
-        updatedAt: new Date().toISOString(),
+        status,
+        updatedAt: getIsoDate(),
+      })
+
+      await logger("certificate-status-updated", {
+        id: newUser.user.uid,
+        status,
       })
     }, randomTimeout)
   }

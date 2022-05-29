@@ -7,8 +7,10 @@ import { doc, onSnapshot, updateDoc } from "firebase/firestore"
 import { colors } from "../colors-map"
 import { config } from "../config"
 import { useFirebaseContext } from "../firebase-context"
+import { useLogger } from "../logger"
 import { useAuthContext } from "../login/auth-context"
 import { Status, User } from "../types"
+import { getIsoDate } from "../utils/get-iso-date"
 import { ChangePasswordForm } from "./change-password-form"
 
 const Root = styled(Box)`
@@ -37,6 +39,7 @@ const title: Record<Status, string> = {
 const useVM = () => {
   const [loading, setLoading] = useState(false)
   const [userRecord, setUser] = useState<User | null>(null)
+  const logger = useLogger()
 
   const { user } = useAuthContext()
   const { db } = useFirebaseContext()
@@ -61,11 +64,14 @@ const useVM = () => {
       setLoading(true)
 
       const ref = doc(db, "users", user.uid)
+      const status = "pending"
 
       await updateDoc(ref, {
-        status: "pending",
-        updatedAt: new Date().toISOString(),
+        status,
+        updatedAt: getIsoDate(),
       })
+
+      await logger("certificate-status-updated", { id: ref.id, status })
 
       setLoading(false)
     }

@@ -17,6 +17,7 @@ import { doc, updateDoc } from "firebase/firestore"
 import { colors } from "../colors-map"
 import { useFirebaseContext } from "../firebase-context"
 import { Status, User } from "../types"
+import { getIsoDate } from "../utils/get-iso-date"
 
 const iconMap: Record<Status, FC<SvgIconProps>> = {
   issued: CheckCircleOutlineIcon,
@@ -62,7 +63,7 @@ const useVM = (arg: GridRenderCellParams<Status, User>) => {
 
     await updateDoc(userRef, {
       status: newStatus,
-      updatedAt: new Date().toISOString(),
+      updatedAt: getIsoDate(),
     })
 
     setLoading(false)

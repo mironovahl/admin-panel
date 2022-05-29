@@ -7,6 +7,7 @@ import {
 } from "@firebase/auth"
 import { Box, Button, styled, TextField, Typography } from "@mui/material"
 
+import { useLogger } from "../logger"
 import { useAuthContext } from "../login/auth-context"
 
 const Root = styled("form")`
@@ -17,6 +18,8 @@ const Root = styled("form")`
 
 const useVM = () => {
   const { user } = useAuthContext()
+
+  const logger = useLogger()
 
   const [oldPassword, setOldPassword] = useState("")
   const [password, setPassword] = useState("")
@@ -49,6 +52,7 @@ const useVM = () => {
 
       await reauthenticateWithCredential(user, credentials)
       await updatePassword(user, password)
+      await logger("password-updated")
 
       setOldPassword("")
       setPassword("")

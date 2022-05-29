@@ -4,6 +4,7 @@ import { NextComponentType, NextPageContext } from "next"
 import type { AppProps } from "next/app"
 
 import { FireBaseContextProvider } from "src/firebase-context"
+import { LoggerProvider } from "src/logger"
 import { AuthProvider } from "src/login/auth-context"
 import { MainLayout } from "src/main-layout"
 
@@ -20,9 +21,11 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
     <FireBaseContextProvider>
       <CssBaseline />
       <AuthProvider>
-        <Layout>
-          <Component {...pageProps} />
-        </Layout>
+        <LoggerProvider>
+          <Layout>
+            <Component {...pageProps} />
+          </Layout>
+        </LoggerProvider>
       </AuthProvider>
     </FireBaseContextProvider>
   )

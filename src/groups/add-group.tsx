@@ -12,6 +12,7 @@ import { nanoid } from "nanoid"
 import { useRouter } from "next/router"
 
 import { useFirebaseContext } from "../firebase-context"
+import { useLogger } from "../logger"
 import { Group } from "../types"
 
 interface Props {
@@ -23,6 +24,7 @@ const useVM = (arg: Props) => {
   const { onClose } = arg
   const { db } = useFirebaseContext()
   const router = useRouter()
+  const logger = useLogger()
 
   const [name, setName] = useState("")
   const [semester, setSemester] = useState("")
@@ -43,6 +45,8 @@ const useVM = (arg: Props) => {
     const docData: Group = { name, semester: Number(semester), id }
 
     await addDoc(collection(db, "groups"), docData)
+
+    await logger("project-created", { id, name })
 
     onClose()
     await router.push(`/groups/${id}`)
