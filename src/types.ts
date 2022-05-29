@@ -10,6 +10,7 @@ export interface User {
   createdAt: string
   updatedAt: string
 }
+
 export interface Group {
   id: string
   name: string
@@ -20,4 +21,22 @@ export interface Group {
 export interface UserRole {
   userId: string
   role: "student" | "admin"
+}
+
+export type LogEvent =
+  | "sign-in"
+  | "sign-in-failure"
+  | "sign-out"
+  | "user-created"
+  | "project-created"
+  | "certificate-status-updated"
+  | "password-updated"
+
+export interface JournalItem {
+  id: string
+  userId: string
+  createdAt: string
+  email: string
+  event: LogEvent
+  comment: string
 }

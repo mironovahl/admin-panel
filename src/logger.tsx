@@ -1,20 +1,14 @@
 import { createContext, FC, useCallback, useContext } from "react"
 import { addDoc, collection } from "firebase/firestore"
+import { nanoid } from "nanoid"
 
 import { useFirebaseContext } from "./firebase-context"
 import { useAuthContext } from "./login/auth-context"
+import { LogEvent } from "./types"
 import { getIsoDate } from "./utils/get-iso-date"
 
-type LogEven =
-  | "sign-in"
-  | "sign-in-failure"
-  | "user-created"
-  | "project-created"
-  | "certificate-status-updated"
-  | "password-updated"
-
 type Logger = (
-  event: LogEven,
+  event: LogEvent,
   options?: Record<string, unknown>,
 ) => Promise<void>
 
@@ -32,7 +26,10 @@ const useVM = () => {
         return
       }
 
+      const id = nanoid(9)
+
       await addDoc(collection(db, "journal"), {
+        id,
         userId: user.uid,
         email: user.email,
         createdAt: getIsoDate(),

@@ -1,12 +1,8 @@
 import { Box, styled, Typography } from "@mui/material"
-import {
-  DataGrid,
-  GridColDef,
-  GridValueFormatterParams,
-} from "@mui/x-data-grid"
-import format from "date-fns/format"
+import { DataGrid, GridColDef } from "@mui/x-data-grid"
 
 import { config } from "../config"
+import { getDateFormatter } from "../utils/get-date-formatter"
 import { useVM } from "./group-vm"
 import { StatusCell } from "./status-cell"
 import { UserModal } from "./user-modal"
@@ -20,11 +16,6 @@ const Root = styled(Box)`
 const GridRoot = styled(Box)`
   margin-top: 8px;
 `
-
-const getDateFormatter =
-  (dateFormat: string) => (params: GridValueFormatterParams) => {
-    return format(new Date((params?.value as string) ?? 0), dateFormat)
-  }
 
 const columns: GridColDef[] = [
   { field: "name", headerName: "Имя", minWidth: 240 },

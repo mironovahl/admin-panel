@@ -1,8 +1,9 @@
-import { FC } from "react"
+import { FC, Fragment } from "react"
 import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings"
-import { Box, Button, IconButton, styled } from "@mui/material"
+import { Box, Button, IconButton, Link as MuiLink, styled } from "@mui/material"
 import Link from "next/link"
 
+import { useLogger } from "./logger"
 import { useAuthContext } from "./login/auth-context"
 
 const Root = styled(Box)`
@@ -26,9 +27,17 @@ const HeaderRoot = styled(Box)`
 `
 
 const useVM = () => {
-  const { logoutAsync, loading } = useAuthContext()
+  const { logoutAsync, loading, userRole } = useAuthContext()
+  const logger = useLogger()
 
-  return { loading, logoutAsync }
+  const showExtraLinks = userRole === "admin"
+
+  const onLogoutAsync = async () => {
+    await logger("sign-out")
+    await logoutAsync()
+  }
+
+  return { loading, onLogoutAsync, showExtraLinks }
 }
 
 export const MainLayout: FC = (props) => {
@@ -40,13 +49,29 @@ export const MainLayout: FC = (props) => {
     <Root>
       {!vm.loading && (
         <HeaderRoot>
-          <IconButton color="primary">
-            <Link href="/">
-              <AdminPanelSettingsIcon />
-            </Link>
-          </IconButton>
+          <Box display="flex" alignItems="center">
+            <IconButton color="primary">
+              <Link href="/">
+                <AdminPanelSettingsIcon />
+              </Link>
+            </IconButton>
 
-          <Button onClick={() => vm.logoutAsync()} variant="outlined">
+            {vm.showExtraLinks && (
+              <Fragment>
+                <Box marginX={1}>
+                  <Link href="/groups" passHref>
+                    <MuiLink>{"Projects"}</MuiLink>
+                  </Link>
+                </Box>
+
+                <Link href="/journal" passHref>
+                  <MuiLink>{"Journal"}</MuiLink>
+                </Link>
+              </Fragment>
+            )}
+          </Box>
+
+          <Button onClick={vm.onLogoutAsync} variant="outlined">
             {"Logout"}
           </Button>
         </HeaderRoot>
