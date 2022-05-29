@@ -16,7 +16,7 @@ import { doc, updateDoc } from "firebase/firestore"
 
 import { colors } from "../colors-map"
 import { useFirebaseContext } from "../firebase-context"
-import { Status, User } from "../types"
+import { CollectionType, Status, User } from "../types"
 import { getIsoDate } from "../utils/get-iso-date"
 
 const iconMap: Record<Status, FC<SvgIconProps>> = {
@@ -59,7 +59,7 @@ const useVM = (arg: GridRenderCellParams<Status, User>) => {
 
   const onClickAsync = async (newStatus: Status) => {
     setLoading(true)
-    const userRef = doc(db, "users", user.id)
+    const userRef = doc(db, CollectionType.USERS, user.id)
 
     await updateDoc(userRef, {
       status: newStatus,

@@ -2,7 +2,7 @@ export type Status = "issued" | "pending" | "blocked" | "requested"
 
 export interface User {
   id: string
-  groupId: string
+  projectId: string
   hash: string
   name: string
   birthdate: string
@@ -11,16 +11,16 @@ export interface User {
   updatedAt: string
 }
 
-export interface Group {
+export interface Project {
   id: string
   name: string
-  semester: number
+  createdAt: string
   users?: User[]
 }
 
 export interface UserRole {
   userId: string
-  role: "student" | "admin"
+  role: "user" | "admin"
 }
 
 export type LogEvent =
@@ -39,4 +39,11 @@ export interface JournalItem {
   email: string
   event: LogEvent
   comment: string
+}
+
+export enum CollectionType {
+  JOURNAL = "journal",
+  PROJECTS = "projects",
+  USERS = "users",
+  USER_ROLES = "userRoles",
 }

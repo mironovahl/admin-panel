@@ -14,8 +14,8 @@ const Root = styled(Box)`
 `
 
 const routes = new Map([
-  ["admin", "/groups"],
-  ["student", "/profile"],
+  ["admin", "/projects"],
+  ["user", "/profile"],
   [null, "/login"],
 ])
 

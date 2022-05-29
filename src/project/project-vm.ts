@@ -26,7 +26,7 @@ import { useRouter } from "next/router"
 import { config } from "../config"
 import { useFirebaseContext } from "../firebase-context"
 import { useLogger } from "../logger"
-import { Group, User } from "../types"
+import { CollectionType, Project, User } from "../types"
 import { getIsoDate } from "../utils/get-iso-date"
 
 const getRandomIntFromInterval = (min: number, max: number) => {
@@ -38,13 +38,13 @@ const TABLE_PADDING = 24
 
 export const useVM = () => {
   const router = useRouter()
-  const { groupId } = router.query
+  const { projectId } = router.query
 
   const { db } = useFirebaseContext()
   const logger = useLogger()
 
   const [users, setUsers] = useState<Array<User>>([])
-  const [groupData, setGroupData] = useState<Group | null>(null)
+  const [projectData, setProjectData] = useState<Project | null>(null)
   const [loading, setLoading] = useState(true)
 
   const [tableHeight, setTableHeight] = useState(500)
@@ -101,9 +101,9 @@ export const useVM = () => {
 
     const createdAt = getIsoDate()
 
-    await setDoc(doc(db, "users", newUser.user.uid), {
+    await setDoc(doc(db, CollectionType.USERS, newUser.user.uid), {
       name,
-      groupId: groupData?.id ?? "",
+      projectId: projectData?.id ?? "",
       status: "pending",
       hash,
       birthday,
@@ -112,9 +112,9 @@ export const useVM = () => {
       updatedAt: createdAt,
     })
 
-    await addDoc(collection(db, "userRoles"), {
+    await addDoc(collection(db, CollectionType.USER_ROLES), {
       userId: newUser.user.uid,
-      role: "student",
+      role: "user",
     })
 
     await logger("user-created", { id: newUser.user.uid, name })
@@ -124,7 +124,7 @@ export const useVM = () => {
     timeoutRef.current = setTimeout(async () => {
       const status = "issued"
 
-      await updateDoc(doc(db, "users", newUser.user.uid), {
+      await updateDoc(doc(db, CollectionType.USERS, newUser.user.uid), {
         status,
         updatedAt: getIsoDate(),
       })
@@ -137,7 +137,10 @@ export const useVM = () => {
   }
 
   const getUsersAsync = useCallback(async () => {
-    const q = query(collection(db, "users"), where("groupId", "==", groupId))
+    const q = query(
+      collection(db, CollectionType.USERS),
+      where("projectId", "==", projectId),
+    )
 
     return onSnapshot(q, (querySnapshot) => {
       querySnapshot.forEach((docData) => {
@@ -146,26 +149,29 @@ export const useVM = () => {
         )
       })
     })
-  }, [db, groupId])
+  }, [db, projectId])
 
-  const getGroupAsync = useCallback(async () => {
-    const q = query(collection(db, "groups"), where("id", "==", groupId))
+  const getProjectAsync = useCallback(async () => {
+    const q = query(
+      collection(db, CollectionType.PROJECTS),
+      where("id", "==", projectId),
+    )
 
     const querySnapshot = await getDocs(q)
 
     querySnapshot.forEach((docData) => {
-      setGroupData(docData.data() as Group)
+      setProjectData(docData.data() as Project)
     })
-  }, [db, groupId])
+  }, [db, projectId])
 
   useEffect(() => {
-    if (groupId) {
+    if (projectId) {
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       let unsubscribe: Unsubscribe = () => {}
 
       setLoading(true)
       ;(async () => {
-        await getGroupAsync()
+        await getProjectAsync()
         unsubscribe = await getUsersAsync()
 
         setLoading(false)
@@ -173,11 +179,11 @@ export const useVM = () => {
 
       return unsubscribe
     }
-  }, [getGroupAsync, getUsersAsync, groupId])
+  }, [getProjectAsync, getUsersAsync, projectId])
 
   return {
     users,
-    groupData,
+    projectData,
     loading,
     addUserAsync,
     rootRef,

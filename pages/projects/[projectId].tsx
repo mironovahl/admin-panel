@@ -1,11 +1,11 @@
 /* eslint-disable unicorn/filename-case */
-import { Group } from "src/group"
+import { Project } from "src/project"
 import { WithAuth } from "src/with-auth"
 
 export default () => {
   return (
     <WithAuth isProtectedPage roles={["admin"]}>
-      <Group />
+      <Project />
     </WithAuth>
   )
 }

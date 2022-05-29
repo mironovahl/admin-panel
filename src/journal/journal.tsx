@@ -12,7 +12,7 @@ const GridRoot = styled(Box)`
 const columns: GridColDef[] = [
   { field: "id", headerName: "ID", minWidth: 100 },
   { field: "email", headerName: "Email", minWidth: 240 },
-  { field: "userId", headerName: "User ID", minWidth: 140 },
+  { field: "userId", headerName: "User ID", minWidth: 240 },
   {
     field: "createdAt",
     headerName: "Created At",
@@ -28,8 +28,6 @@ const columns: GridColDef[] = [
     field: "comment",
     headerName: "Comment",
     flex: 1,
-
-    // minWidth: 440,
   },
 ]
 

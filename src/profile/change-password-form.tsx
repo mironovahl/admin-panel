@@ -79,10 +79,10 @@ export const ChangePasswordForm = () => {
 
   return (
     <Root onSubmit={vm.onSubmitAsync}>
-      <Typography variant="h6">{"Сменить пароль"}</Typography>
+      <Typography variant="h6">{"Update password"}</Typography>
 
       <TextField
-        label="Старый пароль"
+        label="Old password"
         onChange={vm.onOldPasswordChange}
         value={vm.oldPassword}
         error={vm.hasError}
@@ -92,7 +92,7 @@ export const ChangePasswordForm = () => {
       />
 
       <TextField
-        label="Новый Пароль"
+        label="New Password"
         variant="standard"
         value={vm.password}
         onChange={vm.onPasswordChange}
@@ -108,7 +108,7 @@ export const ChangePasswordForm = () => {
           color="primary"
           disabled={vm.loading}
         >
-          {"Сохранить"}
+          {"Save"}
         </Button>
       </Box>
     </Root>

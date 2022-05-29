@@ -59,7 +59,7 @@ export const MainLayout: FC = (props) => {
             {vm.showExtraLinks && (
               <Fragment>
                 <Box marginX={1}>
-                  <Link href="/groups" passHref>
+                  <Link href="/projects" passHref>
                     <MuiLink>{"Projects"}</MuiLink>
                   </Link>
                 </Box>

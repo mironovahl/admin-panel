@@ -76,22 +76,22 @@ export const UserModal: FC<Props> = (props) => {
   return (
     <Fragment>
       <Button startIcon={<AddIcon />} onClick={vm.onOpen}>
-        {"Добавить"}
+        {"Add"}
       </Button>
 
       <Dialog open={vm.isOpen} onClose={vm.onClose}>
-        <DialogTitle>{"Добавить"}</DialogTitle>
+        <DialogTitle>{"Add User"}</DialogTitle>
 
         <DialogContent>
           <DialogContentText>
-            {`Чтобы выпустить сертификат безопасности,
-               введите имя и фамилию студента и нажмите "Добавить"`}
+            {`To issue security certificate,
+            enter user first and last names and click "Add"`}
           </DialogContentText>
 
           <TextField
             margin="dense"
             id="name"
-            label="Имя студента"
+            label="Name"
             fullWidth
             variant="standard"
             value={vm.name}
@@ -114,7 +114,7 @@ export const UserModal: FC<Props> = (props) => {
 
           <LocalizationProvider dateAdapter={AdapterDateFns}>
             <DatePicker<Date>
-              label="Дата рождения"
+              label="Birthdate"
               value={vm.birthday}
               onChange={(newValue) => vm.setBirthday(newValue)}
               inputFormat="dd.MM.yyyy"
@@ -134,7 +134,7 @@ export const UserModal: FC<Props> = (props) => {
 
         <DialogActions>
           <Button onClick={vm.onClose} color="secondary" disabled={vm.loading}>
-            {"Отмена"}
+            {"Cancel"}
           </Button>
 
           <Button
@@ -143,7 +143,7 @@ export const UserModal: FC<Props> = (props) => {
             variant="contained"
             disabled={vm.isDisabled}
           >
-            {"Добавить"}
+            {"Add"}
           </Button>
         </DialogActions>
       </Dialog>

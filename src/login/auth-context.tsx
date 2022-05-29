@@ -13,7 +13,7 @@ import { Auth, getAuth, signOut, User } from "firebase/auth"
 import { collection, getDocs, query, where } from "firebase/firestore"
 import { useRouter } from "next/router"
 
-import { UserRole } from "src/types"
+import { CollectionType, UserRole } from "src/types"
 
 import { useFirebaseContext } from "../firebase-context"
 
@@ -28,7 +28,7 @@ interface IAuthContext {
   setStep: Dispatch<SetStateAction<number>>
   loading: boolean
   logoutAsync: () => Promise<void>
-  userRole: "admin" | "student" | null
+  userRole: "admin" | "user" | null
 }
 
 export const AuthContext = createContext<IAuthContext>({} as IAuthContext)
@@ -42,7 +42,7 @@ const useAuth = () => {
   const [user, setUser] = useState<User | null>(auth?.currentUser ?? null)
   const [tempUser, setTempUser] = useState<User | null>(null)
   const [step, setStep] = useState(0)
-  const [userRole, setUserRole] = useState<"admin" | "student" | null>(null)
+  const [userRole, setUserRole] = useState<"admin" | "user" | null>(null)
 
   const [loading, setLoading] = useState(true)
 
@@ -58,7 +58,7 @@ const useAuth = () => {
 
       if (currentUser) {
         const q = query(
-          collection(db, "userRoles"),
+          collection(db, CollectionType.USER_ROLES),
           where("userId", "==", currentUser?.uid),
         )
 

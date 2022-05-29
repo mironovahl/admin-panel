@@ -3,7 +3,7 @@ import { collection, onSnapshot, query, Unsubscribe } from "firebase/firestore"
 import uniqBy from "lodash/uniqBy"
 
 import { useFirebaseContext } from "../firebase-context"
-import { JournalItem } from "../types"
+import { CollectionType, JournalItem } from "../types"
 
 export const useVM = () => {
   const { db } = useFirebaseContext()
@@ -12,7 +12,7 @@ export const useVM = () => {
   const [loading, setLoading] = useState(true)
 
   const getJournalAsync = useCallback(async () => {
-    const q = query(collection(db, "journal"))
+    const q = query(collection(db, CollectionType.JOURNAL))
 
     return onSnapshot(q, (querySnapshot) => {
       querySnapshot.forEach((docData) => {

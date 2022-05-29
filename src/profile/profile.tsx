@@ -9,7 +9,7 @@ import { config } from "../config"
 import { useFirebaseContext } from "../firebase-context"
 import { useLogger } from "../logger"
 import { useAuthContext } from "../login/auth-context"
-import { Status, User } from "../types"
+import { CollectionType, Status, User } from "../types"
 import { getIsoDate } from "../utils/get-iso-date"
 import { ChangePasswordForm } from "./change-password-form"
 
@@ -30,10 +30,10 @@ const DataRoot = styled(Box)`
 `
 
 const title: Record<Status, string> = {
-  issued: "Выпущен",
-  requested: "Запрошен",
-  blocked: "Заблокирован",
-  pending: "Обрабатывается",
+  issued: "Issued",
+  requested: "Requested",
+  blocked: "Blocked",
+  pending: "Pending",
 }
 
 const useVM = () => {
@@ -49,7 +49,7 @@ const useVM = () => {
     let unsubscribe = () => {}
 
     if (user) {
-      const ref = doc(db, "users", user.uid)
+      const ref = doc(db, CollectionType.USERS, user.uid)
 
       unsubscribe = onSnapshot(ref, (docData) => {
         setUser(docData.data() as User)
@@ -63,7 +63,7 @@ const useVM = () => {
     if (user) {
       setLoading(true)
 
-      const ref = doc(db, "users", user.uid)
+      const ref = doc(db, CollectionType.USERS, user.uid)
       const status = "pending"
 
       await updateDoc(ref, {
@@ -92,13 +92,13 @@ export const Profile = () => {
       <DataRoot>
         {vm.userRecord && (
           <Fragment>
-            <Typography variant="h6">{"Сертификат"}</Typography>
+            <Typography variant="h6">{"Certificate"}</Typography>
 
-            <Typography>{`Имя: ${vm.userRecord.name}`}</Typography>
+            <Typography>{`Name: ${vm.userRecord.name}`}</Typography>
 
             <Box display="flex">
               <Box marginRight={1}>
-                <Typography>{"Статус:"}</Typography>
+                <Typography>{"Status:"}</Typography>
               </Box>
 
               <Typography
@@ -109,7 +109,7 @@ export const Profile = () => {
             </Box>
 
             <Typography>
-              {`Обновлен: ${format(
+              {`Updated: ${format(
                 new Date(vm.userRecord.updatedAt),
                 config.CERTIFICATE_DATE_FORMAT,
               )}`}
@@ -124,7 +124,7 @@ export const Profile = () => {
           disabled={vm.loading}
           onClick={vm.requestCertificateAsync}
         >
-          {"Перевыпустить Сертификат"}
+          {"Re-issue certificate"}
         </Button>
       </DataRoot>
     </Root>

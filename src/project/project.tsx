@@ -3,7 +3,7 @@ import { DataGrid, GridColDef } from "@mui/x-data-grid"
 
 import { config } from "../config"
 import { getDateFormatter } from "../utils/get-date-formatter"
-import { useVM } from "./group-vm"
+import { useVM } from "./project-vm"
 import { StatusCell } from "./status-cell"
 import { UserModal } from "./user-modal"
 
@@ -18,42 +18,41 @@ const GridRoot = styled(Box)`
 `
 
 const columns: GridColDef[] = [
-  { field: "name", headerName: "Имя", minWidth: 240 },
+  { field: "name", headerName: "Name", minWidth: 240 },
   {
     field: "birthday",
-    headerName: "Дата рождения",
+    headerName: "Birthday",
     minWidth: 140,
     valueFormatter: getDateFormatter("dd.MM.yyyy"),
   },
   {
     field: "createdAt",
-    headerName: "Дата создания",
+    headerName: "Created At",
     minWidth: 140,
     valueFormatter: getDateFormatter(config.CERTIFICATE_DATE_FORMAT),
   },
   {
     field: "updatedAt",
-    headerName: "Дата обновления",
+    headerName: "Updated At",
     minWidth: 140,
     valueFormatter: getDateFormatter(config.CERTIFICATE_DATE_FORMAT),
   },
   {
     field: "status",
-    headerName: "Статус сертификата",
+    headerName: "Certificate Status",
     minWidth: 200,
     renderCell: StatusCell,
   },
 ]
 
-export const Group = () => {
+export const Project = () => {
   const vm = useVM()
 
   return (
     <Root ref={vm.rootRef}>
       <Box ref={vm.infoRef}>
         <Box>
-          <Typography>{`Группа: ${vm.groupData?.name}`}</Typography>
-          <Typography>{`Семестр: ${vm.groupData?.semester}`}</Typography>
+          <Typography>{`Project: ${vm.projectData?.name}`}</Typography>
         </Box>
 
         <Box marginTop={1}>
