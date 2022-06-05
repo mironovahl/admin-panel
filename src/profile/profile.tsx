@@ -64,7 +64,7 @@ const useVM = () => {
       setLoading(true)
 
       const ref = doc(db, CollectionType.USERS, user.uid)
-      const status = "pending"
+      const status = "requested"
 
       await updateDoc(ref, {
         status,

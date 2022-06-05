@@ -23,7 +23,6 @@ const columns: GridColDef[] = [
     field: "birthday",
     headerName: "Birthday",
     minWidth: 140,
-    valueFormatter: getDateFormatter("dd.MM.yyyy"),
   },
   {
     field: "createdAt",
